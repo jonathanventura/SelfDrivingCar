@@ -1,5 +1,5 @@
 
-#include <TinyGPS++.h>
+#include <TinyGPSPlus/TinyGPS++.h>
 
 #include <SoftwareSerial.h>
 
