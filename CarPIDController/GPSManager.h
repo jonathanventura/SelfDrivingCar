@@ -3,31 +3,31 @@ class GPSManager
 {
 public:
   GPSManager( int rx_pin )
-  : swserial(rx_pin,255)
+  : swserial_(rx_pin,255)
   {
     
   }
   
   void setup()
   {
-    swserial.begin(4800);
+    swserial_.begin(4800);
   }
 
   void loop()
   {
-    while ( swserial.available() )
+    while ( swserial_.available() )
     {
-      if ( gps.encode( swserial.read() ) )
+      if ( gps_.encode( swserial_.read() ) )
       {
-        lat = gps.location.lat();
-        lon = gps.location.lng();
+        lat_ = gps_.location.lat();
+        lon_ = gps_.location.lng();
       }
     }
   }
 private:
-  SoftwareSerial swserial;
-  TinyGPSPlus gps;
-  double lat, lon;
+  SoftwareSerial swserial_;
+  TinyGPSPlus gps_;
+  double lat_, lon_;
 };
 
 

@@ -3,33 +3,34 @@ class RingBuffer
 {
 public:
   RingBuffer()
-  : index(0)
+  : index_(0)
   {
   }
 
-  int get_index() { return index; }
+  int get_index() { return index_; }
   
-  void insert(double val)
+  void insert( double val )
   {
-    buf[index] = val;
-    index = (index+1)%10;
+    buf_[index_] = val;
+    index_ = (index_+1)%10;
   }
 
   double get_average()
   {
     double sum = 0;
-    for ( int i = 0; i < 10; i++ ) sum += buf[i];
+    for ( int i = 0; i < 10; i++ ) sum += buf_[i];
     return sum/10;
   }
 private:
-  double buf[10];
-  int index;
+  double buf_[10];
+  int index_;
 };
 
 class IMUManager
 {
 public:
   IMUManager()
+  : last_sample_time_(0)
   {
     
   }
@@ -43,22 +44,24 @@ public:
     Wire.write( 0x6B );  
     Wire.write( 0 );     
     Wire.endTransmission( true );
-  
+
+    LEDPIN_ON
+    
     // fill buffers
-    while ( gyro_bias_buf.get_index() != 9 )
+    while ( gyro_bias_buf_.get_index() != 9 )
     {
       read_from_IMU();
       delay(10);
     }
+
+    LEDPIN_OFF
   }
 
   void loop()
   {
-    static long int last_sample_time = 0;
-    
-    if ( millis() - last_sample_time > 33 )
+    if ( millis() - last_sample_time_ > 33 )
     {
-      last_sample_time = millis();
+      last_sample_time_ = millis();
        
       read_from_IMU();
     }
@@ -66,13 +69,8 @@ public:
 
   double get_gyro()
   {
-    return gyro_bias_buf.get_average() - gyro_buf.get_average();
+    return gyro_bias_buf_.get_average() - gyro_buf_.get_average();
   }
-
-//  double get_accel()
-//  {
-//    
-//  }
 private:
   void read_from_IMU()
   {
@@ -92,15 +90,14 @@ private:
     double angle = gyroZ/65.5;
 
     // write to ring buffers
-    if ( fabs(angle) < 5.0 ) gyro_bias_buf.insert(angle);
-    gyro_buf.insert(angle);
+    if ( fabs(angle) < 5.0 ) gyro_bias_buf_.insert(angle);
+    gyro_buf_.insert(angle);
   }
 
-  RingBuffer gyro_bias_buf;
-  RingBuffer gyro_buf;
-  
-//  RingBuffer accel_bias_buf;
-//  RingBuffer accel_buf;
+  long int last_sample_time_;
+
+  RingBuffer gyro_bias_buf_;
+  RingBuffer gyro_buf_;
 };
 
 
