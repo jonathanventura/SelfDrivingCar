@@ -2,10 +2,18 @@
 // Blynk setup
 var Blynk = require('blynk-library');
 
-var AUTH = '94707690fc7a4e04b44894c7f68d9742';
+// cloud setup 
+//var AUTH = '94707690fc7a4e04b44894c7f68d9742';
+//var server = 'cloud.blynk.cc';
+//var portname = '/dev/cu.usbmodem1421';
+
+// RPi setup
+var AUTH = '61edbe8ab7d449648c83fc0c46e8980f';
+var server = 'localhost';
+var portname = '/dev/ttyACM0';
 
 var blynk = new Blynk.Blynk(AUTH, options = {
-  connector : new Blynk.TcpClient( )
+  connector : new Blynk.TcpClient( options = {addr:server} )
 });
 
 blynk.on('connect', function() { console.log("Blynk ready."); });
@@ -16,15 +24,15 @@ blynk.on('disconnect', function() { console.log("DISCONNECT"); });
 // serial port setup
 var SerialPort = require("serialport").SerialPort;
 
-var serialPort = new SerialPort("/dev/cu.usbmodem1421", {
+var serialPort = new SerialPort(portname, {
   baudrate: 115200
 });
 
 
 
 // parameters from Blynk app
-var esc;
-var servo;
+var esc; // VP0
+var servo; // VP1
 
 // Blynk input virtual pins
 var escpin = new blynk.VirtualPin(0);
@@ -41,8 +49,8 @@ servopin.on('write',function(param) {
 
 
 // readings from Arduino
-var gyro;
-var pwm;
+var gyro; // VP2
+var pwm; // VP3
 
 // Blynk output virtual pins
 var gyropin = new blynk.VirtualPin(2);
