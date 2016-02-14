@@ -1,30 +1,5 @@
 
-class RingBuffer
-{
-public:
-  RingBuffer()
-  : index_(0)
-  {
-  }
-
-  int get_index() { return index_; }
-  
-  void insert( double val )
-  {
-    buf_[index_] = val;
-    index_ = (index_+1)%10;
-  }
-
-  double get_average()
-  {
-    double sum = 0;
-    for ( int i = 0; i < 10; i++ ) sum += buf_[i];
-    return sum/10;
-  }
-private:
-  double buf_[10];
-  int index_;
-};
+#include "RingBuffer.h"
 
 class IMUManager
 {
@@ -39,7 +14,6 @@ public:
   {
     // wake up the MPU 6050
     // set PWR_MGMT_1 register (0x6B) to zero
-    Wire.begin();
     Wire.beginTransmission( 0x68 );
     Wire.write( 0x6B );  
     Wire.write( 0 );     

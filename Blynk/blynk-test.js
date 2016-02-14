@@ -8,9 +8,14 @@ var Blynk = require('blynk-library');
 //var portname = '/dev/cu.usbmodem1421';
 
 // RPi setup
+//var AUTH = '61edbe8ab7d449648c83fc0c46e8980f';
+//var server = 'localhost';
+//var portname = '/dev/ttyACM0';
+
+// mac setup
 var AUTH = '61edbe8ab7d449648c83fc0c46e8980f';
-var server = 'localhost';
-var portname = '/dev/ttyACM0';
+var server = '192.168.1.26';
+var portname = '/dev/cu.usbmodem1411';
 
 var blynk = new Blynk.Blynk(AUTH, options = {
   connector : new Blynk.TcpClient( options = {addr:server} )

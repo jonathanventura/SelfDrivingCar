@@ -3,7 +3,8 @@ class GPSManager
 {
 public:
   GPSManager( int rx_pin )
-  : swserial_(rx_pin,255),
+  : rx_pin_(rx_pin),
+  swserial_(rx_pin,255),
   lat_(0),lon_(0),
   speed_(0),
   heading_(0)
@@ -13,6 +14,7 @@ public:
   
   void setup()
   {
+    pinMode( rx_pin_, INPUT );
     swserial_.begin(4800);
   }
 
@@ -30,6 +32,7 @@ public:
     }
   }
 private:
+  int rx_pin_;
   SoftwareSerial swserial_;
   TinyGPSPlus gps_;
   double lat_, lon_;
