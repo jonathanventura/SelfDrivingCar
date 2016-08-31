@@ -2,8 +2,8 @@
 class ServoPIDController
 {
 public:
-  ServoPIDController( int pin, int period, double Kp )
-  : pin_(pin), setpoint_(0), period_(period), last_time_(0), Kp_(Kp)
+  ServoPIDController( int pin, double Kp )
+  : pin_(pin), Kp_(Kp)
   {
     
   }
@@ -20,26 +20,23 @@ public:
     servo_.write( value_ );
   }
 
-  void set_setpoint( double gyro )
+  void off()
   {
-    setpoint_ = gyro;
+    value_ = zero_;
   }
 
-  void loop( double gyro )
+  void update( int heading, int course )
   {
-    // PID update
-    if ( millis() - last_time_ >= period_ )
-    {
-      double pid_update = Kp_ * ( gyro - setpoint_ );
-      double new_value = value_ + pid_update;
-      new_value = (new_value>max_)?max_:new_value;
-      new_value = (new_value<min_)?min_:new_value;
-  
-      value_ = new_value;
-      
-      last_time_ = millis();
-    }
+    int diff = getAngularDifference( course, heading );
+    double new_value = Kp_ * diff;
+    new_value = (new_value>max_)?max_:new_value;
+    new_value = (new_value<min_)?min_:new_value;
+    
+    value_ = new_value;
+  }
 
+  void loop( )
+  {
     servo_.write( value_ );
   }
 
@@ -51,17 +48,24 @@ private:
   int pin_;
   Servo servo_;
   
-  double setpoint_;
   double value_;
 
-  int period_;
-  long int last_time_;
-  
   double Kp_;
   
   byte min_;
   byte zero_;
   byte max_;
+
+  int getAngularDifference( int a, int b )
+  {
+      // http://stackoverflow.com/questions/7570808/how-do-i-calculate-the-difference-of-two-angle-measures
+      int d = abs(a - b) % 360; 
+      int r = d > 180 ? 360 - d : d;
+
+      //calculate sign 
+      int sign = (a - b >= 0 && a - b <= 180) || (a - b <=-180 && a- b>= -360) ? 1 : -1; 
+      r *= sign;
+  }
 };
 
 
