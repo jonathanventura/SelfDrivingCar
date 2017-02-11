@@ -19,26 +19,26 @@ public:
     Wire.write( 0 );     
     Wire.endTransmission( true );
 
-    LEDPIN_ON
-    
     // fill buffers
     while ( gyro_bias_buf_.get_index() != 9 )
     {
       read_from_IMU();
       delay(10);
     }
-
-    LEDPIN_OFF
   }
 
-  void loop()
+  bool loop()
   {
     if ( millis() - last_sample_time_ > 33 )
     {
       last_sample_time_ = millis();
        
       read_from_IMU();
+
+      return true;
     }
+
+    return false;
   }
 
   double get_gyro()

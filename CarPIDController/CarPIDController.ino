@@ -1,78 +1,58 @@
-#define USE_ESP8266
-
-#ifdef USE_ESP8266
-#include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-const char *ssid = "ClydesRide";
-
-#include <aREST.h>
-
-
-#endif
-
 #include <Arduino.h>
 #include <Servo.h>
-#include <EEPROM.h>
 #include <Wire.h>
-#include <SoftwareSerial.h>
+#include <Firmata.h>
 
-#include <TinyGPS++.h>
+//#include <EEPROM.h>
 
-#include "GPSManager.h"
-#include "ServoPIDController.h"
+//#include <SoftwareSerial.h>
+//#include <TinyGPS++.h>
+//#include "GPSManager.h"
+
+#include "IMUManager.h"
+#include "ServoVelocityController.h"
 #include "ESCController.h"
 
-#ifndef USE_ESP8266
 #include "Button.h"
-#endif
 
-#ifdef USE_ESP8266
-#define SERVO_PIN 5
-#define ESC_PIN 16
-#define GPS_RX_PIN 7
-#define GPS_TX_PIN 8
-#else
 #define BUTTON_PIN 7
 #define SERVO_PIN 9
 #define ESC_PIN 10
-#define GPS_RX_PIN 5
-#define GPS_TX_PIN 255
-#endif
 
-#define SERVO_PERIOD 100
-#define SERVO_Kp 0.1
+#define SERVO_Kp 10
 
-#ifndef USE_ESP8266
 Button button( BUTTON_PIN );
-#endif
-GPSManager gps_manager( GPS_RX_PIN, GPS_TX_PIN );
-ServoPIDController servo_controller( SERVO_PIN, SERVO_Kp );
+
+IMUManager imu_manager;
+//GPSManager gps_manager( GPS_RX_PIN, GPS_TX_PIN );
+ServoVelocityController servo_controller( SERVO_PIN, SERVO_Kp );
 ESCController esc_controller( ESC_PIN );
 
-double waypoints[32];
-int current_waypoint = 0;
+void analogWriteCallback(byte pin, int value)
+{
+  if ( pin == SERVO_PIN ) servo_controller.set_desired_velocity( value-90 );
+}
 
 void setup() {
   Wire.begin();
-  Serial.begin( 9600 );
 
-#ifdef USE_ESP8266
-  WiFi.softAP(ssid);
-#endif
+  Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
+  Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
+  Firmata.begin(57600);
+//  Serial.begin(9600);
 
-#ifndef USE_ESP8266
-//  button.setup();
-#endif
+  button.setup();
+
+  imu_manager.setup();
+  
 //  esc_controller.setup();
-//  servo_controller.setup();
+  servo_controller.setup();
 //  gps_manager.setup();
 
 }
 
 void loop() {
-#ifndef USE_ESP8266
   button.loop();
-#endif
 
 //  bool new_gps_data = gps_manager.loop();
   
@@ -98,7 +78,12 @@ void loop() {
     
 //  }
 //
-//  servo_controller.loop();
+
+  if ( imu_manager.loop() ) {
+    servo_controller.update( imu_manager.get_gyro() );
+  }
+  
+  servo_controller.loop();
   
 //  esc_controller.loop();
 }

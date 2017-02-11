@@ -1,9 +1,9 @@
 
-class ServoPIDController
+class ServoVelocityController
 {
 public:
-  ServoPIDController( int pin, double Kp )
-  : pin_(pin), Kp_(Kp)
+  ServoVelocityController( int pin, double Kp )
+  : pin_(pin), Kp_(Kp), desired_velocity_( 0 )
   {
     
   }
@@ -28,10 +28,23 @@ public:
     value_ = zero_;
   }
 
-  void update( int heading, int course )
+  void set_desired_velocity( int desired_velocity )
   {
-    int diff = getAngularDifference( course, heading );
-    double new_value = Kp_ * diff;
+    desired_velocity_ = desired_velocity;
+  }
+
+  // velocities are given in deg/s
+  void update( int current_velocity )
+  {
+    int diff = getAngularDifference( current_velocity, desired_velocity_ );
+    
+//    Serial.print(current_velocity); Serial.print("\t");
+//    Serial.print(desired_velocity_); Serial.print("\t");
+//    Serial.print(diff); Serial.print("\t");
+//    Serial.print(Kp_*diff); Serial.print("\t");
+//    Serial.print(value_); Serial.print("\n");
+    
+    double new_value = value_ + Kp_ * diff;
     new_value = (new_value>max_)?max_:new_value;
     new_value = (new_value<min_)?min_:new_value;
     
@@ -58,6 +71,8 @@ private:
   byte min_;
   byte zero_;
   byte max_;
+
+  int desired_velocity_;
 
   int getAngularDifference( int a, int b )
   {
