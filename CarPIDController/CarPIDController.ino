@@ -2,10 +2,12 @@
 #include <Servo.h>
 #include <Wire.h>
 
-//#include <Firmata.h>
+#define LEDPIN_PINMODE             DDRD |= (1<<4);            //D4 to output
+#define LEDPIN_TOGGLE              PIND |= (1<<5)|(1<<4);     //switch LEDPIN state (Port D5) & pin D4
+#define LEDPIN_OFF                 PORTD |= (1<<5); PORTD &= ~(1<<4);
+#define LEDPIN_ON                  PORTD &= ~(1<<5); PORTD |= (1<<4);  
 
-#include <ros.h>
-ros::NodeHandle nh;
+#include <Firmata.h>
 
 //#include <EEPROM.h>
 
@@ -34,17 +36,34 @@ ESCController esc_controller( ESC_PIN );
 
 void analogWriteCallback(byte pin, int value)
 {
-  if ( pin == SERVO_PIN ) servo_controller.set_desired_velocity( value-90 );
+//  if ( pin == SERVO_PIN ) servo_controller.set_desired_velocity( value-90 );
+  for ( int i = 0; i < value; i++ ) {
+    LEDPIN_ON
+    delay(500);
+    LEDPIN_OFF
+    delay(500);
+  }
+}
+
+void stringCallback(char *msg){
+  int value = String(msg).toInt();
+  for ( int i = 0; i < value; i++ ) {
+    LEDPIN_TOGGLE
+    delay(1000);
+  }
 }
 
 void setup() {
   Wire.begin();
 
-//  Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
-//  Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
-//  Firmata.begin(57600);
-//  Serial.begin(9600);
+  Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
+  Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
+  Firmata.attach(STRING_DATA, stringCallback);
+  Firmata.begin(57600);
+//  Serial.begin(57600);
 
+  LEDPIN_PINMODE
+  
   button.setup();
 
   imu_manager.setup();
@@ -56,8 +75,8 @@ void setup() {
 }
 
 void loop() {
-//  while (Firmata.available())
-//    Firmata.processInput();
+  while (Firmata.available())
+    Firmata.processInput();
 
   button.loop();
 

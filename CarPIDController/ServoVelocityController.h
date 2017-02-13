@@ -28,13 +28,13 @@ public:
     value_ = zero_;
   }
 
-  void set_desired_velocity( int desired_velocity )
+  void set_desired_velocity( float desired_velocity )
   {
     desired_velocity_ = desired_velocity;
   }
 
   // velocities are given in deg/s
-  void update( int current_velocity )
+  void update( float current_velocity )
   {
     int diff = getAngularDifference( current_velocity, desired_velocity_ );
     
