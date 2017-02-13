@@ -1,7 +1,11 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <Wire.h>
-#include <Firmata.h>
+
+//#include <Firmata.h>
+
+#include <ros.h>
+ros::NodeHandle nh;
 
 //#include <EEPROM.h>
 
@@ -36,9 +40,9 @@ void analogWriteCallback(byte pin, int value)
 void setup() {
   Wire.begin();
 
-  Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
-  Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
-  Firmata.begin(57600);
+//  Firmata.setFirmwareVersion(FIRMATA_MAJOR_VERSION, FIRMATA_MINOR_VERSION);
+//  Firmata.attach(ANALOG_MESSAGE, analogWriteCallback);
+//  Firmata.begin(57600);
 //  Serial.begin(9600);
 
   button.setup();
@@ -52,8 +56,8 @@ void setup() {
 }
 
 void loop() {
-  while (Firmata.available())
-    Firmata.processInput();
+//  while (Firmata.available())
+//    Firmata.processInput();
 
   button.loop();
 
