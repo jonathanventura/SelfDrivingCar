@@ -52,6 +52,9 @@ void setup() {
 }
 
 void loop() {
+  while (Firmata.available())
+    Firmata.processInput();
+
   button.loop();
 
 //  bool new_gps_data = gps_manager.loop();

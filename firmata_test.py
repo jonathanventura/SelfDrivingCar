@@ -18,6 +18,7 @@ pin9 = board.get_pin('d:9:p')
 
 def move_servo(a):
     pin9.write(int(a)+90)
+    print('writing %d'%(int(a)+90))
 
 # set up GUI
 root = Tk()
